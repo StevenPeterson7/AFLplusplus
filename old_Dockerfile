@@ -5,9 +5,9 @@
 # since focal has gcc-10 but not g++-10 ...
 #
 
-FROM ubuntu:20.04 AS mgba_fuzzer
-LABEL "maintainer"="unconquerable"
-LABEL "about"="mgba_fuzzer docker image"
+FROM ubuntu:20.04 AS aflplusplus
+LABEL "maintainer"="afl++ team <afl@aflplus.plus>"
+LABEL "about"="AFLplusplus docker image"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -40,7 +40,6 @@ RUN apt-get update && apt-get full-upgrade -y && \
     libclang-common-11-dev libclang-cpp11 libclang-cpp11-dev liblld-11 \
     liblld-11-dev liblldb-11 liblldb-11-dev libllvm11 libomp-11-dev \
     libomp5-11 lld-11 lldb-11 llvm-11 llvm-11-dev llvm-11-runtime llvm-11-tools \
-    libstdc++-10-dev llvm-dev cmake libsdl-image1.2-dev libsdl-dev mesa-utils libglu1-mesa-dev freeglut3-dev mesa-common-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 0
@@ -66,10 +65,3 @@ ENV IS_DOCKER="1"
 # Disabled until we have the container ready
 #COPY --from=aflplusplus/afl-dyninst /usr/local/lib/libdyninstAPI_RT.so /usr/local/lib/libdyninstAPI_RT.so
 #COPY --from=aflplusplus/afl-dyninst /afl-dyninst/libAflDyninst.so /usr/local/lib/libAflDyninst.so
-
-RUN cd /
-RUN git clone https://github.com/mgba-emu/mgba.git /mgba
-RUN mkdir /mgba/build && cd /mgba/build
-RUN cd /mgba/build && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_COMPILER=afl-clang-fast -DCMAKE_CXX_COMPILER=afl-clang-fast++ -DBUILD_TEST=ON /mgba
-#RUN cd /mgba/build && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DBUILD_TEST=ON /mgba
-RUN cd /mgba/build && truncate -s -1 /mgba/build/sdl/CMakeFiles/mgba-sdl.dir/link.txt && echo '-lGL' >> /mgba/build/sdl/CMakeFiles/mgba-sdl.dir/link.txt && make && make install
